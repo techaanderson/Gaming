@@ -10,27 +10,30 @@
 #>
 
 #--------------- Variables ------------------------------------------------------------------------------------------------------------------------------------#
-
 # Define the game directories
 $installDir = "F:\Games\Steam_Games\steamapps\common\PEAK\"
 $pluginsFolderPath = Join-Path -Path $installDir -ChildPath "BepInEx\plugins\"
-# Get the user's Downloads folder path
-$downloadsFolderPath = Get-ItemPropertyValue "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "{374DE290-123F-4565-9164-39C4925E467B}"
 
 #--------------- Bepinex --------------------------------------------------------------------------------------------------------------------------------------#
 # Download Bepinex from GitHub and extract to your game directory
 $GitHubApiUrl = "https://api.github.com/repos/BepInEx/BepInEx/releases/latest"
-$downloadUrl = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.browser_download_url | Where-Object {$_ -like '*win_x86*'}
-$downloadName = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.name | Where-Object {$_ -like '*win_x86*'}
-$FilePath = Join-Path -Path $downloadsFolderPath -ChildPath $downloadName
-Invoke-WebRequest -Uri $downloadUrl -OutFile $FilePath
+$downloadUrl = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.browser_download_url | Where-Object { $_ -like '*win_x86*' }
+$downloadName = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.name | Where-Object { $_ -like '*win_x86*' }
+$zipFilePath = Join-Path -Path $installDir -ChildPath $downloadName
+Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath
 Expand-Archive -Path $zipFilePath -DestinationPath $installDir -Force
 
 #---------------- PEAK Unlimited ------------------------------------------------------------------------------------------------------------------------------#
-# Download PEAK Unlimited from GitHub and extract to your game plugins directory
-$GitHubApiUrl = "https://api.github.com/repos/glarmer/PEAK-Unlimited/releases/latest"
-$downloadUrl = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.browser_download_url | Where-Object {$_ -like '*PEAK-Unlimited*'}
-$downloadName = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.name
-$FilePath = Join-Path -Path $downloadsFolderPath -ChildPath $downloadName
-Invoke-WebRequest -Uri $downloadUrl -OutFile $FilePath
-Copy-Item -Path $FilePath -DestinationPath $pluginsFolderPath -Force
+# Chcck if plugins folder exists, if not stop the script and inform the user to start the game once
+if (-Not (Test-Path -Path $pluginsFolderPath)) {
+    Write-Host "Plugins folder not found. Please start the game once to set up BepInEx, then run this script again." -ForegroundColor Red
+    exit
+}
+else {
+    # Download PEAK Unlimited dll from GitHub to your game plugins directory
+    $GitHubApiUrl = "https://api.github.com/repos/glarmer/PEAK-Unlimited/releases/latest"
+    $downloadUrl = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.browser_download_url | Where-Object { $_ -like '*PEAK-Unlimited*' }
+    $downloadName = (Invoke-RestMethod -uri  $GitHubApiUrl)[0].assets.name
+    $FilePath = Join-Path -Path $pluginsFolderPath -ChildPath $downloadName
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $FilePath
+}
