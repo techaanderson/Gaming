@@ -11,7 +11,7 @@
 
 #--------------- Variables ------------------------------------------------------------------------------------------------------------------------------------#
 # Define the game directories
-$installDir = "F:\Games\Steam_Games\steamapps\common\PEAK\"
+$installDir = "D:\Games\Steam_Games\steamapps\common\PEAK\"
 $pluginsFolderPath = Join-Path -Path $installDir -ChildPath "BepInEx\plugins\"
 
 #--------------- Bepinex --------------------------------------------------------------------------------------------------------------------------------------#
